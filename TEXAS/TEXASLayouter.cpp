@@ -7,24 +7,29 @@
 //
 
 #include "TEXASLayouter.hpp"
+#include <iostream>
 
 
-void TEXASLayouter::CalculateLineRuns() {
+void TEXASLayouter::CalculateLineRuns(TEXASRenderer& renderer) {
 	lineRuns.clear();
 	
-	size_t lastPos = 0;
-	
-	while (true) {
-		TEXASLineRun run;
-		run.lineStart = lastPos;
-		run.lineEnd = text.find('\n', lastPos);
-		if (run.lineEnd == std::string::npos) {
-			run.lineEnd = text.length();
-			lineRuns.push_back(run);
-			break;
-		}
+	TEXASLineRun run;
+	run.lineStart = 0;
+	int currLineWidth = 0;
+
+	for (size_t x = 0; x < text.length();) {
+		size_t measuredChars = 0;
+		currLineWidth += renderer.WidthOfCharacters(text.c_str() + x, &measuredChars, lineWidth, '\n');
+		run.lineEnd = x + measuredChars;
+		run.hardBreak = text[run.lineEnd] == '\n';
+		
 		lineRuns.push_back(run);
-		lastPos = run.lineEnd + 1;
+
+		if (run.hardBreak) {
+			x = run.lineStart = run.lineEnd + 1;
+		} else {
+			x = run.lineStart = run.lineEnd;
+		}
 	}
 }
 

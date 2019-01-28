@@ -34,7 +34,9 @@
 	
 	TEXASLayouter layouter;
 	layouter.text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ Ä Ö Ü\nabcdefghijklmnopqrstuvwxyz ä ö ü\n0123456789\n.,?/:;'\"()! -\nHello World! Grün ist schön!";
-	layouter.CalculateLineRuns();
+	size_t len = layouter.text.length();
+	layouter.lineWidth = self.bounds.size.width;
+	layouter.CalculateLineRuns(renderer);
 	layouter.Draw(renderer);
 }
 

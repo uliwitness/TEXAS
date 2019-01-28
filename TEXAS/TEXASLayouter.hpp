@@ -18,15 +18,17 @@ class TEXASLineRun {
 public:
 	size_t lineStart;
 	size_t lineEnd;
+	bool hardBreak;
 };
 
 class TEXASLayouter {
 public:
-	void CalculateLineRuns();
+	void CalculateLineRuns(TEXASRenderer& renderer);
 	void Draw(TEXASRenderer& renderer);
 
 	std::string text;
 	std::vector<TEXASLineRun> lineRuns;
+	int lineWidth; // In pixels.
 };
 
 #endif /* TEXASLayouter_hpp */

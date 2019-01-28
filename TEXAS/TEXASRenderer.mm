@@ -25,6 +25,15 @@ CGFloat TEXASTimesCharacterWidth[] = { 13, 13, 12, 13, 11, 10, 13, 13, 6, 7, 12,
 										4, 4, 8, 6, 4, 4, 4, 7, 7, 7, 4, 5, 7,
 										12, 13, 13, 7, 10, 9,
 										10 };
+bool TEXASBreakingCharacters[] = {	false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+									false, false, false, false, false, false, false, false, false, false, false, false,
+									false, false, false, false, false, false, false, false, false, false, false, false, false, false,
+									false, false, false, false, false, false, false, false, false, false, false, false,
+									false, false, false, false, false, false, false, false, false, false,
+									true, true, true, true, true, true, false, false, false, false, true, true, true,
+									false, false, false, false, false, false,
+									false
+};
 NSString * TEXASTimesImageName = @"Times";
 
 TEXASRenderer::TEXASRenderer() {
@@ -54,22 +63,53 @@ void TEXASRenderer::DrawCharacters(const char *theCh) {
 }
 
 
-int TEXASRenderer::WidthOfCharacters(const char *theCh) {
+int TEXASRenderer::WidthOfCharacters(const char *theCh, size_t *outMeasuredChars, int maximumWidth, char stopChar) {
 	int width = 0;
-	for (size_t y = 0; theCh[y] != 0;) {
+	size_t y = 0;
+	size_t lastBreakCharacter = SIZE_T_MAX;
+	int lastBreakWidth = 0;
+	
+	while (theCh[y] != 0 && theCh[y] != stopChar) {
 		bool foundGlyph = false;
 		for (size_t x = 0; TEXASTimesCharacters[x] && !foundGlyph; ++x) {
 			size_t patternLen = strlen(TEXASTimesCharacters[x]);
 			if (strncmp(TEXASTimesCharacters[x], theCh + y, patternLen) == 0) {
+				if ((width + TEXASTimesCharacterWidth[x]) > maximumWidth) {
+					while(theCh[y] == ' ') {
+						++y;
+					}
+					if (lastBreakCharacter != SIZE_T_MAX) {
+						y = lastBreakCharacter;
+						width = lastBreakWidth;
+					}
+					if (outMeasuredChars) {
+						*outMeasuredChars = y;
+					}
+					return width;
+				}
+
 				width += TEXASTimesCharacterWidth[x];
 				y += patternLen;
 				foundGlyph = true;
+				if (TEXASBreakingCharacters[x]) {
+					lastBreakCharacter = y;
+					lastBreakWidth = width;
+				}
 			}
 		}
 		if (!foundGlyph) {
+			if ((width + TEXASTimesCharacterWidth[x]) > maximumWidth) {
+				if (outMeasuredChars) {
+					*outMeasuredChars = y;
+				}
+				return width;
+			}
 			width += TEXASTimesCharacterWidth[(sizeof(TEXASTimesCharacters) / sizeof(const char*)) - 1];
 			y += 1;
 		}
+	}
+	if (outMeasuredChars) {
+		*outMeasuredChars = y;
 	}
 	return width;
 }

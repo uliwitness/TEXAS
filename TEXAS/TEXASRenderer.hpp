@@ -11,6 +11,7 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <climits>
 
 #if __OBJC__
 @class NSImage;
@@ -43,7 +44,7 @@ public:
 	int		GetLineHeight();
 
 	void	DrawCharacters( const char *theCh );
-	int		WidthOfCharacters( const char *theCh );
+	int		WidthOfCharacters( const char *theCh, size_t *outMeasuredChars = nullptr, int maximumWidth = INT_MAX, char stopChar = '\0' );
 
 protected:
 	int x = 0;
