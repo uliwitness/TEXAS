@@ -11,6 +11,9 @@
 		555C2D7221FE68D4001B1C2C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 555C2D7121FE68D4001B1C2C /* Assets.xcassets */; };
 		555C2D7521FE68D4001B1C2C /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 555C2D7321FE68D4001B1C2C /* MainMenu.xib */; };
 		555C2D7821FE68D4001B1C2C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 555C2D7721FE68D4001B1C2C /* main.m */; };
+		555C2D8121FE68FC001B1C2C /* TEXASRenderer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 555C2D7F21FE68FC001B1C2C /* TEXASRenderer.mm */; };
+		555C2D8421FE73D6001B1C2C /* TEXASView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 555C2D8321FE73D6001B1C2C /* TEXASView.mm */; };
+		555C2D8721FFA0BB001B1C2C /* TEXASLayouter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 555C2D8521FFA0BB001B1C2C /* TEXASLayouter.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +25,12 @@
 		555C2D7621FE68D4001B1C2C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		555C2D7721FE68D4001B1C2C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		555C2D7921FE68D4001B1C2C /* TEXAS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TEXAS.entitlements; sourceTree = "<group>"; };
+		555C2D7F21FE68FC001B1C2C /* TEXASRenderer.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TEXASRenderer.mm; sourceTree = "<group>"; };
+		555C2D8021FE68FC001B1C2C /* TEXASRenderer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TEXASRenderer.hpp; sourceTree = "<group>"; };
+		555C2D8221FE73D6001B1C2C /* TEXASView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TEXASView.h; sourceTree = "<group>"; };
+		555C2D8321FE73D6001B1C2C /* TEXASView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TEXASView.mm; sourceTree = "<group>"; };
+		555C2D8521FFA0BB001B1C2C /* TEXASLayouter.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TEXASLayouter.cpp; sourceTree = "<group>"; };
+		555C2D8621FFA0BB001B1C2C /* TEXASLayouter.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TEXASLayouter.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +65,12 @@
 			children = (
 				555C2D6E21FE68CF001B1C2C /* AppDelegate.h */,
 				555C2D6F21FE68CF001B1C2C /* AppDelegate.m */,
+				555C2D8221FE73D6001B1C2C /* TEXASView.h */,
+				555C2D8321FE73D6001B1C2C /* TEXASView.mm */,
+				555C2D8621FFA0BB001B1C2C /* TEXASLayouter.hpp */,
+				555C2D8521FFA0BB001B1C2C /* TEXASLayouter.cpp */,
+				555C2D8021FE68FC001B1C2C /* TEXASRenderer.hpp */,
+				555C2D7F21FE68FC001B1C2C /* TEXASRenderer.mm */,
 				555C2D7121FE68D4001B1C2C /* Assets.xcassets */,
 				555C2D7321FE68D4001B1C2C /* MainMenu.xib */,
 				555C2D7621FE68D4001B1C2C /* Info.plist */,
@@ -135,6 +150,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				555C2D7821FE68D4001B1C2C /* main.m in Sources */,
+				555C2D8121FE68FC001B1C2C /* TEXASRenderer.mm in Sources */,
+				555C2D8721FFA0BB001B1C2C /* TEXASLayouter.cpp in Sources */,
+				555C2D8421FE73D6001B1C2C /* TEXASView.mm in Sources */,
 				555C2D7021FE68CF001B1C2C /* AppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
