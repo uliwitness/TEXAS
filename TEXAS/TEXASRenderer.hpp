@@ -31,7 +31,7 @@ public:
 	TEXASRenderer();
 	~TEXASRenderer();
 
-	void	DrawGlyphAtIndex(size_t glyphIndex);
+	void	DrawGlyphAtIndex(size_t glyphIndex, bool drawCursor);
 	
 	void	SetX(int inX)	{ x = inX; }
 	int		GetX() 			{ return x; }
@@ -40,10 +40,10 @@ public:
 	void	MoveX(int inX)	{ x += inX; }
 	void	MoveY(int inY)	{ y += inY; }
 	void	SetTextStyle(TEXASTextStyle inStyle) { style = inStyle; }
-	
+
 	int		GetLineHeight();
 
-	void	DrawCharacters( const char *theCh );
+	void	DrawCharacters(const char *theCh, size_t cursorOffset);
 	int		WidthOfCharacters( const char *theCh, size_t *outMeasuredChars = nullptr, int maximumWidth = INT_MAX, char stopChar = '\0' );
 
 protected:

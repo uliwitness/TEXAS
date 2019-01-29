@@ -10,6 +10,12 @@
 #import "TEXASRenderer.hpp"
 #import "TEXASLayouter.hpp"
 
+@interface TEXASView ()
+{
+	size_t cursorPos;
+}
+@end
+
 @implementation TEXASView
 
 - (void)drawRect:(NSRect)dirtyRect
@@ -18,26 +24,27 @@
 	renderer.SetY(self.bounds.size.height);
 	//renderer.SetTextStyle(TEXASBoxedStyle);
 	
-//	renderer.DrawCharacters("ABCDEFGHIJKLMNOPQRSTUVWXYZ Ä Ö Ü");
-//	renderer.MoveY(-renderer.GetLineHeight());
-//	renderer.SetX(0);
-//	renderer.DrawCharacters("abcdefghijklmnopqrstuvwxyz ä ö ü");
-//	renderer.MoveY(-renderer.GetLineHeight());
-//	renderer.SetX(0);
-//	renderer.DrawCharacters("0123456789");
-//	renderer.MoveY(-renderer.GetLineHeight());
-//	renderer.SetX(0);
-//	renderer.DrawCharacters(".,?/:;'\"()! -");
-//	renderer.MoveY(-renderer.GetLineHeight());
-//	renderer.SetX(0);
-//	renderer.DrawCharacters("Hello World! Grün ist schön!");
+	TEXASLayouter layouter;
+	layouter.text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ Ä Ö Ü\nabcdefghijklmnopqrstuvwxyz ä ö ü\n0123456789\n.,?/:;'\"()! -\nHello World! Grün ist schön!";
+	layouter.lineWidth = self.bounds.size.width;
+	layouter.CalculateLineRuns(renderer);
+	layouter.Draw(renderer, cursorPos);
+}
+
+-(void)	mouseDown:(NSEvent *)event
+{
+	NSPoint clickPos = [self convertPoint: event.locationInWindow fromView: nil];
+	
+	TEXASRenderer	renderer;
+	renderer.SetY(self.bounds.size.height);
 	
 	TEXASLayouter layouter;
 	layouter.text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ Ä Ö Ü\nabcdefghijklmnopqrstuvwxyz ä ö ü\n0123456789\n.,?/:;'\"()! -\nHello World! Grün ist schön!";
-	size_t len = layouter.text.length();
 	layouter.lineWidth = self.bounds.size.width;
 	layouter.CalculateLineRuns(renderer);
-	layouter.Draw(renderer);
+	cursorPos = layouter.OffsetAtXY(renderer, clickPos.x, clickPos.y);
+	
+	[self setNeedsDisplay: YES];
 }
 
 @end

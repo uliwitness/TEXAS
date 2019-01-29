@@ -44,19 +44,19 @@ TEXASRenderer::~TEXASRenderer() {
 	img = nil;
 }
 
-void TEXASRenderer::DrawCharacters(const char *theCh) {
+void TEXASRenderer::DrawCharacters(const char *theCh, size_t cursorOffset) {
 	for (size_t y = 0; theCh[y] != 0;) {
 		bool foundGlyph = false;
 		for (size_t x = 0; TEXASTimesCharacters[x] && !foundGlyph; ++x) {
 			size_t patternLen = strlen(TEXASTimesCharacters[x]);
 			if (strncmp(TEXASTimesCharacters[x], theCh + y, patternLen) == 0) {
-				DrawGlyphAtIndex(x);
+				DrawGlyphAtIndex(x, y == cursorOffset);
 				y += patternLen;
 				foundGlyph = true;
 			}
 		}
 		if (!foundGlyph) {
-			DrawGlyphAtIndex((sizeof(TEXASTimesCharacters) / sizeof(const char*)) - 1);
+			DrawGlyphAtIndex((sizeof(TEXASTimesCharacters) / sizeof(const char*)) - 1, y == cursorOffset);
 			y += 1;
 		}
 	}
@@ -75,10 +75,10 @@ int TEXASRenderer::WidthOfCharacters(const char *theCh, size_t *outMeasuredChars
 			size_t patternLen = strlen(TEXASTimesCharacters[x]);
 			if (strncmp(TEXASTimesCharacters[x], theCh + y, patternLen) == 0) {
 				if ((width + TEXASTimesCharacterWidth[x]) > maximumWidth) {
-					while(theCh[y] == ' ') {
+					while(theCh[y] == ' ' && stopChar == '\n') {
 						++y;
 					}
-					if (lastBreakCharacter != SIZE_T_MAX) {
+					if (stopChar == '\n' && lastBreakCharacter != SIZE_T_MAX) {
 						y = lastBreakCharacter;
 						width = lastBreakWidth;
 					}
@@ -115,7 +115,7 @@ int TEXASRenderer::WidthOfCharacters(const char *theCh, size_t *outMeasuredChars
 }
 
 
-void	TEXASRenderer::DrawGlyphAtIndex(size_t glyphIndex) {
+void	TEXASRenderer::DrawGlyphAtIndex(size_t glyphIndex, bool drawCursor) {
 	NSRect box = { NSZeroPoint, { 0, img.size.height } };
 	for (int x = 0; x <= glyphIndex; ++x) {
 		box.origin.x = NSMaxX(box);
@@ -131,6 +131,10 @@ void	TEXASRenderer::DrawGlyphAtIndex(size_t glyphIndex) {
 		[NSBezierPath strokeRect: (NSRect){ {(CGFloat)x + 0.5, (CGFloat)y - box.size.height + 0.5}, NSMakeSize(box.size.width - 1.0, box.size.height - 1.0) }];
 	}
 	[img drawAtPoint: NSMakePoint(x, y - box.size.height) fromRect: box operation: NSCompositingOperationSourceOver fraction: 1.0];
+	if (drawCursor) {
+		[NSColor.blackColor set];
+		[NSBezierPath strokeRect: (NSRect){ {(CGFloat)x + 0.5, (CGFloat)y - box.size.height + 0.5}, { 0, box.size.height - 1.0 } }];
+	}
 	x += box.size.width;
 }
 
