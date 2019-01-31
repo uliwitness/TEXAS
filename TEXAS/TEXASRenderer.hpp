@@ -26,12 +26,18 @@ enum _TEXASTextStyle {
 };
 typedef uint32_t TEXASTextStyle;
 
+enum TEXASCharacterHitPart {
+	TEXASCharacterHitNothing,
+	TEXASCharacterHitLeftHalf,
+	TEXASCharacterHitRightHalf
+};
+
 class TEXASRenderer {
 public:
 	TEXASRenderer();
 	~TEXASRenderer();
 
-	void	DrawGlyphAtIndex(size_t glyphIndex, bool drawCursor);
+	void	DrawGlyphAtIndex(size_t glyphIndex, TEXASCharacterHitPart hitEdge);
 	
 	void	SetX(int inX)	{ x = inX; }
 	int		GetX() 			{ return x; }
@@ -43,8 +49,9 @@ public:
 
 	int		GetLineHeight();
 
-	void	DrawCharacters(const char *theCh, size_t cursorOffset);
-	int		WidthOfCharacters( const char *theCh, size_t *outMeasuredChars = nullptr, int maximumWidth = INT_MAX, char stopChar = '\0' );
+	void	DrawCharacters(const char *theCh, size_t cursorOffset, TEXASCharacterHitPart hitEdge);
+	int		WidthOfCharacters( const char *theCh, size_t *outMeasuredChars = nullptr, size_t *outMeasuredCharsWithSpaces = nullptr, int maximumWidth = INT_MAX, char stopChar = '\0' );
+	TEXASCharacterHitPart HitTestCharacters(const char *theCh, size_t *outFoundChStart, size_t *outFoundChEnd, int xPos);
 
 protected:
 	int x = 0;

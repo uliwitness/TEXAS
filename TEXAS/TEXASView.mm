@@ -13,6 +13,7 @@
 @interface TEXASView ()
 {
 	size_t cursorPos;
+	TEXASCharacterHitPart hitEdge;
 }
 @end
 
@@ -28,7 +29,13 @@
 	layouter.text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ Ä Ö Ü\nabcdefghijklmnopqrstuvwxyz ä ö ü\n0123456789\n.,?/:;'\"()! -\nHello World! Grün ist schön!";
 	layouter.lineWidth = self.bounds.size.width;
 	layouter.CalculateLineRuns(renderer);
-	layouter.Draw(renderer, cursorPos);
+	layouter.Draw(renderer, cursorPos, hitEdge);
+}
+
+-(void)	mouseDragged:(NSEvent *)event
+{
+	[self mouseDown: event
+];
 }
 
 -(void)	mouseDown:(NSEvent *)event
@@ -42,7 +49,9 @@
 	layouter.text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ Ä Ö Ü\nabcdefghijklmnopqrstuvwxyz ä ö ü\n0123456789\n.,?/:;'\"()! -\nHello World! Grün ist schön!";
 	layouter.lineWidth = self.bounds.size.width;
 	layouter.CalculateLineRuns(renderer);
-	cursorPos = layouter.OffsetAtXY(renderer, clickPos.x, clickPos.y);
+	cursorPos = layouter.OffsetAtXY(renderer, clickPos.x, clickPos.y, &hitEdge);
+	
+	NSLog(@"cursorPos = %zu", cursorPos);
 	
 	[self setNeedsDisplay: YES];
 }

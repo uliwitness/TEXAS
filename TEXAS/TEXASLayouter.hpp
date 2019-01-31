@@ -25,8 +25,8 @@ public:
 class TEXASLayouter {
 public:
 	void CalculateLineRuns(TEXASRenderer& renderer);
-	void Draw(TEXASRenderer& renderer, size_t cursorOffset);
-	size_t OffsetAtXY(TEXASRenderer& renderer, int mouseX, int mouseY);
+	void Draw(TEXASRenderer& renderer, size_t cursorOffset, TEXASCharacterHitPart hitEdge);
+	size_t OffsetAtXY(TEXASRenderer& renderer, int mouseX, int mouseY, TEXASCharacterHitPart* hitEdge);
 	
 	std::string text;
 	std::vector<TEXASLineRun> lineRuns;

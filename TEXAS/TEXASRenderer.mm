@@ -44,26 +44,26 @@ TEXASRenderer::~TEXASRenderer() {
 	img = nil;
 }
 
-void TEXASRenderer::DrawCharacters(const char *theCh, size_t cursorOffset) {
+void TEXASRenderer::DrawCharacters(const char *theCh, size_t cursorOffset, TEXASCharacterHitPart hitEdge) {
 	for (size_t y = 0; theCh[y] != 0;) {
 		bool foundGlyph = false;
 		for (size_t x = 0; TEXASTimesCharacters[x] && !foundGlyph; ++x) {
 			size_t patternLen = strlen(TEXASTimesCharacters[x]);
 			if (strncmp(TEXASTimesCharacters[x], theCh + y, patternLen) == 0) {
-				DrawGlyphAtIndex(x, y == cursorOffset);
+				DrawGlyphAtIndex(x, (y == cursorOffset) ? hitEdge : TEXASCharacterHitNothing);
 				y += patternLen;
 				foundGlyph = true;
 			}
 		}
 		if (!foundGlyph) {
-			DrawGlyphAtIndex((sizeof(TEXASTimesCharacters) / sizeof(const char*)) - 1, y == cursorOffset);
+			DrawGlyphAtIndex((sizeof(TEXASTimesCharacters) / sizeof(const char*)) - 1, (y == cursorOffset) ? hitEdge : TEXASCharacterHitNothing);
 			y += 1;
 		}
 	}
 }
 
 
-int TEXASRenderer::WidthOfCharacters(const char *theCh, size_t *outMeasuredChars, int maximumWidth, char stopChar) {
+int TEXASRenderer::WidthOfCharacters(const char *theCh, size_t *outMeasuredChars, size_t *outMeasuredCharsWithSpaces, int maximumWidth, char stopChar) {
 	int width = 0;
 	size_t y = 0;
 	size_t lastBreakCharacter = SIZE_T_MAX;
@@ -75,15 +75,19 @@ int TEXASRenderer::WidthOfCharacters(const char *theCh, size_t *outMeasuredChars
 			size_t patternLen = strlen(TEXASTimesCharacters[x]);
 			if (strncmp(TEXASTimesCharacters[x], theCh + y, patternLen) == 0) {
 				if ((width + TEXASTimesCharacterWidth[x]) > maximumWidth) {
-					while(theCh[y] == ' ' && stopChar == '\n') {
-						++y;
-					}
 					if (stopChar == '\n' && lastBreakCharacter != SIZE_T_MAX) {
 						y = lastBreakCharacter;
 						width = lastBreakWidth;
 					}
+					size_t yWithSpaces = y;
+					while(theCh[yWithSpaces] == ' ') {
+						++yWithSpaces;
+					}
 					if (outMeasuredChars) {
 						*outMeasuredChars = y;
+					}
+					if (outMeasuredCharsWithSpaces) {
+						*outMeasuredCharsWithSpaces = yWithSpaces;
 					}
 					return width;
 				}
@@ -111,11 +115,70 @@ int TEXASRenderer::WidthOfCharacters(const char *theCh, size_t *outMeasuredChars
 	if (outMeasuredChars) {
 		*outMeasuredChars = y;
 	}
+	if (outMeasuredCharsWithSpaces) {
+		*outMeasuredCharsWithSpaces = y;
+	}
 	return width;
 }
 
 
-void	TEXASRenderer::DrawGlyphAtIndex(size_t glyphIndex, bool drawCursor) {
+TEXASCharacterHitPart TEXASRenderer::HitTestCharacters(const char *theCh, size_t *outFoundChStart, size_t *outFoundChEnd, int xPos) {
+	int width = 0;
+	size_t y = 1;
+	size_t lastPatternLen = 1;
+	
+	while (theCh[y] != 0 && theCh[y] != '\n') {
+		bool foundGlyph = false;
+		for (size_t x = 0; TEXASTimesCharacters[x] && !foundGlyph; ++x) {
+			size_t patternLen = strlen(TEXASTimesCharacters[x]);
+			if (strncmp(TEXASTimesCharacters[x], theCh + y, patternLen) == 0) {
+				int rightEdge = width + TEXASTimesCharacterWidth[x],
+					middleEdge = width + (TEXASTimesCharacterWidth[x] / 2);
+				if (rightEdge >= xPos) { // Click was in this character
+					if (outFoundChEnd) {
+						*outFoundChEnd = y;
+					}
+					if (outFoundChStart) {
+						*outFoundChStart = (y >= patternLen) ? (y - patternLen) : y;
+					}
+					return (xPos < middleEdge) ? TEXASCharacterHitLeftHalf : TEXASCharacterHitRightHalf;
+				}
+				
+				width += TEXASTimesCharacterWidth[x];
+				y += patternLen;
+				lastPatternLen = patternLen;
+				foundGlyph = true;
+			}
+		}
+		if (!foundGlyph) {
+			int rightEdge = width + TEXASTimesCharacterWidth[x],
+				middleEdge = width + (TEXASTimesCharacterWidth[x] / 2);
+			if (rightEdge >= xPos) {
+				if (outFoundChEnd) {
+					*outFoundChEnd = y;
+				}
+				if (outFoundChStart) {
+					*outFoundChStart = (y >= 1) ? (y - 1) : y;
+				}
+				return (xPos < middleEdge) ? TEXASCharacterHitLeftHalf : TEXASCharacterHitRightHalf;
+			}
+			width += TEXASTimesCharacterWidth[(sizeof(TEXASTimesCharacters) / sizeof(const char*)) - 1];
+			y += 1;
+			lastPatternLen = 1;
+		}
+	}
+	if (outFoundChEnd) {
+		*outFoundChEnd = y;
+	}
+	if (outFoundChStart) {
+		*outFoundChStart = (y >= lastPatternLen) ? (y - lastPatternLen) : y;
+	}
+	return TEXASCharacterHitRightHalf;
+}
+
+
+
+void	TEXASRenderer::DrawGlyphAtIndex(size_t glyphIndex, TEXASCharacterHitPart hitEdge) {
 	NSRect box = { NSZeroPoint, { 0, img.size.height } };
 	for (int x = 0; x <= glyphIndex; ++x) {
 		box.origin.x = NSMaxX(box);
@@ -131,9 +194,12 @@ void	TEXASRenderer::DrawGlyphAtIndex(size_t glyphIndex, bool drawCursor) {
 		[NSBezierPath strokeRect: (NSRect){ {(CGFloat)x + 0.5, (CGFloat)y - box.size.height + 0.5}, NSMakeSize(box.size.width - 1.0, box.size.height - 1.0) }];
 	}
 	[img drawAtPoint: NSMakePoint(x, y - box.size.height) fromRect: box operation: NSCompositingOperationSourceOver fraction: 1.0];
-	if (drawCursor) {
+	if (hitEdge == TEXASCharacterHitLeftHalf) {
 		[NSColor.blackColor set];
 		[NSBezierPath strokeRect: (NSRect){ {(CGFloat)x + 0.5, (CGFloat)y - box.size.height + 0.5}, { 0, box.size.height - 1.0 } }];
+	} else if (hitEdge == TEXASCharacterHitRightHalf) {
+		[NSColor.blackColor set];
+		[NSBezierPath strokeRect: (NSRect){ {(CGFloat)x - 0.5 + box.size.width, (CGFloat)y - box.size.height + 0.5}, { 0, box.size.height - 1.0 } }];
 	}
 	x += box.size.width;
 }
