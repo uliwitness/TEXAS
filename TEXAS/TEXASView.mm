@@ -34,8 +34,7 @@
 
 -(void)	mouseDragged:(NSEvent *)event
 {
-	[self mouseDown: event
-];
+	[self mouseDown: event];
 }
 
 -(void)	mouseDown:(NSEvent *)event

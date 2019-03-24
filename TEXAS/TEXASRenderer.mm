@@ -124,22 +124,24 @@ int TEXASRenderer::WidthOfCharacters(const char *theCh, size_t *outMeasuredChars
 
 TEXASCharacterHitPart TEXASRenderer::HitTestCharacters(const char *theCh, size_t *outFoundChStart, size_t *outFoundChEnd, int xPos) {
 	int width = 0;
-	size_t y = 1;
-	size_t lastPatternLen = 1;
+	size_t y = 0;
+	size_t lastPatternLen = 0;
+	size_t lastPatternPos = 0;
 	
 	while (theCh[y] != 0 && theCh[y] != '\n') {
 		bool foundGlyph = false;
+		lastPatternPos = y;
 		for (size_t x = 0; TEXASTimesCharacters[x] && !foundGlyph; ++x) {
 			size_t patternLen = strlen(TEXASTimesCharacters[x]);
 			if (strncmp(TEXASTimesCharacters[x], theCh + y, patternLen) == 0) {
 				int rightEdge = width + TEXASTimesCharacterWidth[x],
 					middleEdge = width + (TEXASTimesCharacterWidth[x] / 2);
 				if (rightEdge >= xPos) { // Click was in this character
-					if (outFoundChEnd) {
-						*outFoundChEnd = y;
-					}
 					if (outFoundChStart) {
-						*outFoundChStart = (y >= patternLen) ? (y - patternLen) : y;
+						*outFoundChStart = y;
+					}
+					if (outFoundChEnd) {
+						*outFoundChEnd = y + patternLen;
 					}
 					return (xPos < middleEdge) ? TEXASCharacterHitLeftHalf : TEXASCharacterHitRightHalf;
 				}
@@ -154,11 +156,11 @@ TEXASCharacterHitPart TEXASRenderer::HitTestCharacters(const char *theCh, size_t
 			int rightEdge = width + TEXASTimesCharacterWidth[x],
 				middleEdge = width + (TEXASTimesCharacterWidth[x] / 2);
 			if (rightEdge >= xPos) {
-				if (outFoundChEnd) {
-					*outFoundChEnd = y;
-				}
 				if (outFoundChStart) {
-					*outFoundChStart = (y >= 1) ? (y - 1) : y;
+					*outFoundChStart = y;
+				}
+				if (outFoundChEnd) {
+					*outFoundChEnd = y + lastPatternLen;
 				}
 				return (xPos < middleEdge) ? TEXASCharacterHitLeftHalf : TEXASCharacterHitRightHalf;
 			}
@@ -167,11 +169,11 @@ TEXASCharacterHitPart TEXASRenderer::HitTestCharacters(const char *theCh, size_t
 			lastPatternLen = 1;
 		}
 	}
-	if (outFoundChEnd) {
-		*outFoundChEnd = y;
-	}
 	if (outFoundChStart) {
-		*outFoundChStart = (y >= lastPatternLen) ? (y - lastPatternLen) : y;
+		*outFoundChStart = lastPatternPos;
+	}
+	if (outFoundChEnd) {
+		*outFoundChEnd = lastPatternPos + lastPatternLen;
 	}
 	return TEXASCharacterHitRightHalf;
 }

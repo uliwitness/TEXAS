@@ -25,9 +25,7 @@ void TEXASLayouter::CalculateLineRuns(TEXASRenderer& renderer) {
 		currLineWidth += renderer.WidthOfCharacters(str + x, &measuredChars, &measuredCharsWithSpaces, lineWidth, '\n');
 		run.lineEnd = x + measuredChars;
 		run.hardBreak = text[run.lineEnd] == '\n';
-		
-		std::cout << "run: " << run.lineStart << "..." << run.lineEnd  << " \"" << text.substr(run.lineStart, run.lineEnd - run.lineStart) << (run.hardBreak ? "\"\n\n" : "\"\n");
-		
+				
 		lineRuns.push_back(run);
 
 		if (run.hardBreak) {
@@ -49,12 +47,9 @@ size_t	TEXASLayouter::OffsetAtXY(TEXASRenderer& renderer, int mouseX, int mouseY
 			foundOffs = run.lineStart;
 			size_t foundStartOffs = 0, foundEndOffs = 0;
 			*hitEdge = renderer.HitTestCharacters(text.c_str() + run.lineStart, &foundStartOffs, &foundEndOffs, mouseX - x);
-			std::cout << "start=" << foundStartOffs << " end=" << foundEndOffs << " \"" << text.substr(foundStartOffs + run.lineStart, foundEndOffs - foundStartOffs) << "\"." << std::endl;
+			foundOffs = foundStartOffs + run.lineStart;
 			if (foundOffs >= run.lineEnd) {
-				foundOffs = foundStartOffs + run.lineStart;
 				*hitEdge = TEXASCharacterHitRightHalf;
-			} else {
-				foundOffs = foundEndOffs + run.lineStart;
 			}
 			break;
 		}
